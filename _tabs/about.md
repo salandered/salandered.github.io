@@ -6,6 +6,8 @@ order: 4
 
 ## Attribution
 
+Site theme is based on Chirpy: https://chirpy.cotes.page/
+
 The avatar image is a screenshot from the game Timberborn, property of [Mechanistry](https://mechanistry.com/)
-(note that leopard-like tail is a my humble addition).
+(note that the leopard-like tail is a my humble addition).
 
