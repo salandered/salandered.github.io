@@ -1,6 +1,5 @@
 ---
 title: Hello World
-date: 2026-03-06 00:00:00 +0800
 categories: [General]
 tags: [first-post]
 ---
@@ -28,7 +27,7 @@ Many objects in project use this node, sometimes with additional QoL features li
 <br>
 Fire node (used for torches):
 
-![alt text](images/vosn/fire_usual.png)
+![alt text](__images/vosn/fire_usual.png)
 
 VisibleOnScreenNotifier3D cube around the fire node:
 

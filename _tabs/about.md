@@ -4,5 +4,8 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-> Add Markdown syntax content to file `_tabs/about.md`{: .filepath } and it will show up on this page.
-{: .prompt-tip }
+## Attribution
+
+The avatar image is a screenshot from the game Timberborn, property of [Mechanistry](https://mechanistry.com/)
+(note that leopard-like tail is a my humble addition).
+
