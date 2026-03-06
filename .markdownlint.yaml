@@ -1,0 +1,17 @@
+{ 
+    # line too long: it's fine
+    "MD013": false, # https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md013.md
+    "MD007": false, # https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md007.md
+    "MD010": false, # https://github.com/DavidAnson/markdownlint/blob/v0.40.0/doc/md010.md
+    # too much
+    "MD059": false,
+    # too much
+    "MD041": false,
+    # not ready for this
+    "MD034": false,
+    # optional
+    "MD060": false,
+    # using inline html for things like expander:
+    # https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-collapsed-sections
+    "MD033": false
+}
