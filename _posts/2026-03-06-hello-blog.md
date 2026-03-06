@@ -48,5 +48,3 @@ Similar with node that makes the parent swaying: we can set the cube size or aut
 
 Project uses light baking for some specific scene.
 Not all usages of it lead to any measurable performance gain (at least I haven't spotted it in profilers): sometimes it is used only for aesthetic or 🧪 scientific reasons.
-
-More info here: [docs_lighting_setup](docs_lighting_setup.md)
