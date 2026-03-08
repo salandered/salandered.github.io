@@ -29,4 +29,47 @@
   },
 
   "editor.lightbulb.enabled": "off",
+
+  "editor.codeActionsOnSave": {
+		"source.fixAll.markdownlint": "explicit"
+	},
+	"markdownlint.focusMode": true,
+
+  "workbench.colorCustomizations": {
+		// BUILD IN
+		"editor.findMatchBackground": "#f5eda80e", // active match (the one you’re on)
+		"editor.findMatchBorder": "#fa902ccb",
+		"editor.findMatchHighlightBackground": "#ffffff00", // all other matches
+		"editor.findMatchHighlightBorder": "#feffc686",
+		//
+		// COLORFUL BRACKETS
+		"editorBracketHighlight.foreground1": "#abc9ff",
+		"editorBracketHighlight.foreground2": "#fcb5fce7",
+		"editorBracketHighlight.foreground3": "#acf0a9ee",
+		"editorBracketHighlight.foreground4": "#ffe3ab",
+		"editorBracketHighlight.foreground5": "#ffabae",
+		"editorBracketHighlight.foreground6": "#abfff9",
+		// color of wave like underline
+		"editorError.foreground": "#fd5ca75b", // 🚨 semi-transparent red
+		// "editorError.foreground": "#fd5ca700", // ⏺ FAKE TURN OFF
+		"editorWarning.foreground": "#ffff002a", // semi-transparent yellow
+		// "editorInfo.foreground": "#ffff002a", // semi-transparent yellow
+		//
+		// ERROR LENS
+		// "errorLens.errorForeground": "#fd578177", // 🚨 more gentle red
+		"errorLens.errorForeground": "#fd578100", // ⏺ FAKE TURN OFF
+		"errorLens.errorBackground": "#ffffff00",
+		"errorLens.messageBackgroundMode": "none",
+		"errorLens.warningBackground": "#ffffff00",
+		"errorLens.warningForeground": "#dba35a91",
+		"errorLens.infoBackground": "#ffffff00",
+		//
+    },
+    "markdown.extension.toc.levels": "2..3",
+    "cSpell.enabledFileTypes": {
+      "markdown": true
+	},
+	"cSpell.words": [
+		"noob"
+	],
 }
