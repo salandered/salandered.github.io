@@ -14,9 +14,9 @@ timezone:
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Ivan Codes (salandered) # the main title
+title: Ivan Codes # the main title
 
-tagline: Some fancy tagline # it will display as the subtitle
+tagline: salandered # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   blog, godot, github, software patterns, software architecture, software design, event driven architecture, doors appreciation

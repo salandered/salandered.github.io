@@ -1,0 +1,40 @@
+---
+---
+/* prettier-ignore */
+@use 'main{%- if jekyll.environment == 'production' -%}.bundle{%- endif -%}';
+
+/*
+NOTE: Hides Recently Updated and Trending Tags from the side bar.
+Trending Tags does not have and id so we can't hide more specifically
+There are both under <div class="access"> container, so we use it.
+*/
+#panel-wrapper .access {
+	display: none !important;
+}
+
+blockquote.prompt-book {
+	border-left-color: #5972b6;
+	background-color: rgba(133, 193, 233, 0.1);
+}
+
+
+blockquote.prompt-book::before {
+	content: "\f02d";
+	color: #5972b6;
+	font: var(--fa-font-solid);
+}
+
+// future
+// nice purple #9b59b6
+// bolt "\f0e7"
+
+blockquote.prompt-mug {
+	border-left-color: #777777;
+	background-color: rgba(119, 119, 119, 0.1);
+}
+
+blockquote.prompt-mug::before {
+	content: "\f0f4";
+	color: #777777;
+	font: var(--fa-font-solid);
+}

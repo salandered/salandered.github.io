@@ -7,7 +7,6 @@ link: https://salandered.github.io/
 
 The theme code is based on [Chirpy](https://chirpy.cotes.page/about/) and licensed under the MIT License: [file](LICENSE)
 
-All blog posts and original images are Copyright (c) 2026 salandered (Ivan Codes). All rights reserved.
-
+All blog posts and original images are written by Ivan Codes (aka `salandered`) and licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 See also: attribution at the blog's [about page](_tabs/about.md#attribution)
