@@ -1,5 +1,6 @@
 ---
 title: "Reversing the flow: Godot Signals through an EDA lens"
+description: Understanding the basic usage of Godot's signals from an Event-Driven Architecture perspective.
 categories: [Coding]
 tags: [godot, godot signals, events, eda]
 ---
@@ -125,7 +126,7 @@ Even with all this in place, new challenges arise:
 
 #### How event approach solves this via decoupling
 
-> I discuss the 'event' definition here, not EDA as a whole. If you are unfamiliar with it, don't worry: different related concepts will be gradually revealed throughout the article. The essence of it that we care about is described here via "event" concept and door example.
+> For now, I discuss the 'event' definition, not EDA as a whole. If you are unfamiliar with it, don't worry: different related concepts will be gradually revealed throughout the article. The essence of it that we care about is described here via the door example.
 {: .prompt-tip }
 
 One way to address this design issues is to use Event-Driven Architecture (EDA) and [**Event**](https://en.wikipedia.org/wiki/Event_(computing)) concept in particular (also known as **Message** or **Notification**, depending on the context):
