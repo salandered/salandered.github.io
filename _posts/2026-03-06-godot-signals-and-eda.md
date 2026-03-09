@@ -1,5 +1,5 @@
 ---
-title: "Reversing the Flow: Godot Signals Through an EDA Lens"
+title: "Reversing the flow: Godot Signals through an EDA lens"
 categories: [Coding]
 tags: [godot, godot signals, events, eda]
 ---
@@ -128,7 +128,7 @@ Even with all this in place, new challenges arise:
 > I discuss the 'event' definition here, not EDA as a whole. If you are unfamiliar with it, don't worry: different related concepts will be gradually revealed throughout the article. The essence of it that we care about is described here via "event" concept and door example.
 {: .prompt-tip }
 
-One way to address this design issues is to use Event-Driven Architecture (EDA) and [Event](https://en.wikipedia.org/wiki/Event_(computing)) concept in particular (also known as **Message** or **Notification**, depending on the context):
+One way to address this design issues is to use Event-Driven Architecture (EDA) and [**Event**](https://en.wikipedia.org/wiki/Event_(computing)) concept in particular (also known as **Message** or **Notification**, depending on the context):
 > In computing, an event is a detectable occurrence or change in state that the system is designed to monitor,
 > such as user input, hardware interrupt, system notification, or change in data or conditions. When associated with an event handler, an event triggers a response.
 
@@ -238,8 +238,6 @@ Firstly, there is no strict definition: it depends on the area, use cases, imple
 That being said, there are common associations with events usage, especially with EDA, and they do not fit our signals.
 Also we will see that technically signal and a usual event have very little in common.
 
-At the same time, I will show how we can use EDA even when it contradicts signals nature.
-
 > "Event" term is being used in different areas, like [hardware interruptions](https://wiki.osdev.org/Interrupt_Service_Routines) or
 > [OS loops](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-messages-and-message-queues).
 > Same [wiki page](https://en.wikipedia.org/wiki/Event_(computing)) also contains this "*can be implemented through various mechanisms such as callbacks, message objects, signals, or interrupts*".
@@ -263,8 +261,7 @@ In our door example, `Door` is a **publisher** and `SFXSystem` is a **subscriber
 
 #### New reference example
 
-I will be talking about different practical examples in the next blog post. But relying only on the door flattens our perspective, and I feel like a bit of an imposter.
-
+Relying only on the door example flattens our perspective, and I feel like a bit of an imposter.
 Let's retell the example from the [official tutorial](https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html#custom-signals).
 
 Player character has a health attribute and on receiving the damage it emits a signal about health being changed.
@@ -331,8 +328,8 @@ Signals are synchronous and act just like a function call.
 
 It's a common misconception to assume otherwise, and I think there are two reasons for that.
 
-First one we already mentioned: EDA is associated with asynchronous interactions, and just by using the word "event" it becomes easier to forget that Godot's application
-[is a monolith](https://docs.godotengine.org/en/stable/_images/godot-architecture-diagram.webp), and we don't deal with services which are being processed by their own host machines and send the events over the network (to be honest, the word "signal" doesn't really help with asynchronous associations either).
+First one we already mentioned: EDA is associated with async interactions, and just by using the word "event" it becomes easier to forget that Godot's application
+[is a monolith](https://docs.godotengine.org/en/stable/_images/godot-architecture-diagram.webp), and we don't deal with services which are being processed by their own host machines and send the events over the network (to be honest, the word "signal" doesn't really help with async associations either).
 
 Secondly, documentation does not emphasize it (I presume this is common knowledge that client code runs using one thread?).
 There is a funny proof of that, top links that pop up in the search:
@@ -419,11 +416,11 @@ I haven't tested it but assume it will do the same but is "baked" into signal AP
 
 To make this truly asynchronous, we can use the [threading API](https://docs.godotengine.org/en/stable/tutorials/performance/using_multiple_threads.html).
 I assume that implementing popular EDA interactions using threads would not require signals at all, though.
-Either way, asynchronous signals are beyond the scope of this article.
+Either way, async signals are beyond the scope of this article.
 
 #### Publisher-Subscriber pitfall
 
-Since we talked about how words may bring undesired associations, I want to mention that "Publisher-Subscriber" may be described as a pattern on its own: [link](https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber), [link](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern). It may have different definitions, but, as we might expect by now, "asynchronous" communication is emphasized.
+Since we talked about how words may bring undesired associations, I want to mention that "Publisher-Subscriber" may be described as a pattern on its own: [link](https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber), [link](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern). It may have different definitions, but, as we might expect by now, asynchronous communication is emphasized.
 
 I still decided to use those words, but I want to illustrate that such "borrowing" should be made with caution.
 Assume that you started using these terms in your documentation or code: a new developer who is not familiar with signals may be easily misguided.
@@ -690,12 +687,12 @@ Take a look at [this clip](https://youtu.be/MWHFV_BPqkA?si=_SInfWhNvBcTHf4R&t=38
 - **Event Notification** traits are listed, not the **Observer**'s.
 - There is a mention of nodes, that "react independently in their own threads". In case of the default signal usage in Godot this is not true.
 
-Another example is this [video](https://youtu.be/b3uFSh3GASs?si=SAyHDv9h_JcHV1Qb) description:
-> ... we are building bridges between our well encapsulated character controller and the rest of the game world. Godot has powerful events routing system called signals, and at first it seems that collision with an enemies sword is exactly the case for using them. But in a big game, we'll either have zero signals or like 50, and a *system that has its logic built with 50 events is hardly ever can be debugged and/or scaled properly*.
+Another example is this [video](https://youtu.be/b3uFSh3GASs?si=SAyHDv9h_JcHV1Qb) description (edited slightly):
+>... we build a bridge between our character controller and the rest of the game world. Godot has powerful events routing system called signals, and it seems that collision with an enemy's sword is exactly the case for using them. But in a big game we'll either have zero signals or like 50, and *a system whose logic is built on 50 events can be hardly debugged or scaled* properly.
 
 I would argue that:
 
-- because of the *difference* between the signal and event, 50 signals should not be that hard to debug.
+- because of the *difference* between the signal and event, 50 signals should not be hard to debug.
 - because of the *similarity* between the signal and event, they actually should help us to scale our system.
 
 Also in my opinion signals are actually a good candidate for "bridges between character and the rest of the game world",
