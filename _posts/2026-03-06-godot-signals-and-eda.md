@@ -74,27 +74,7 @@ We will start with a basic example.
 
 #### Simple direct call
 
-Imagine we have a `Door` class that represents an interactive object in game, and a `DoorSFXSystem` class whose responsibility is playing different door sounds.
-If a player opens the door, we want to play a creaking sound.
-
-This is a basic object relationship:
-
-```gdscript
-class_name DoorSFXSystem
-
-func play_sound():
-	# playing sound
-```
-
-```gdscript
-class_name Door
-
-var sfx_system: DoorSFXSystem
-
-func open_door():
-	# some opening logic
-	sfx_system.play_sound()
-```
+{% include shared/door_example_direct_call.md %}
 
 > I am interested in code relationships, but for a full picture note that in Godot it would probably mean
 > a Door [scene](https://docs.godotengine.org/en/stable/getting_started/introduction/key_concepts_overview.html#scenes),
@@ -163,30 +143,8 @@ How official docs describe them:
 This is exactly what we need!
 
 Signals have two main functions: `emit` and `connect`.
-Now `Door` has a signal as its attribute, and `DoorSFXSystem` *connects* to this signal.
-The door would *emit* it instead of the direct call to sfx system.
 
-```gdscript
-class_name Door
-
-signal door_opened
-
-func open_door():
-	# some opening logic
-	door_opened.emit()
-```
-
-```gdscript
-class_name DoorSFXSystem
-
-var door: Door
-
-func _ready():
-	door.door_opened.connect(_on_door_opened)
-
-func _on_door_opened():
-	# play sound
-```
+{% include shared/door_example_signal_version.md %}
 
 We did exactly the same decoupling that was described via events.
 
@@ -526,7 +484,8 @@ func _on_door_opened(initiator: String):
 
 Here the parameter of the `emit` is a way to pass it as an argument to the function `_on_door_opened`.
 
-An important thing is that declaration of payload at `signal door_opened(initiator: String)` is optional: it is supported by some Godot UI features, but *does not affect the runtime behavior*.
+An important thing is that declaration of payload at `signal door_opened(initiator: String)` is optional:
+it is supported by some Godot UI features, but *does not affect the runtime behavior*.
 What matters is a match between `emit` arguments and a callback (`_on_door_opened`) interface. Just like with a direct function call.
 
 It means that technically `initiator: String` is not a part of signal's object. This is a key difference with an event.

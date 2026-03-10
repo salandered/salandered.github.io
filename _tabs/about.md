@@ -9,7 +9,8 @@ order: 4
 
 Feel free to contact me.
 
-Mail: ivancodes@pm.me
+* Mail: ivancodes@pm.me
+* Telegram: @pierce_copy
 
 ## Attribution
 

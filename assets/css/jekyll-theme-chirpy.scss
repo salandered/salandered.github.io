@@ -14,7 +14,7 @@ There are both under <div class="access"> container, so we use it.
 
 blockquote.prompt-book {
 	border-left-color: #5972b6;
-	background-color: rgba(133, 193, 233, 0.1);
+	background-color: rgba(133, 193, 233, 0.171);
 }
 
 
@@ -24,9 +24,18 @@ blockquote.prompt-book::before {
 	font: var(--fa-font-solid);
 }
 
-// future
-// nice purple #9b59b6
-// bolt "\f0e7"
+blockquote.prompt-bolt {
+	border-left-color: #9b59b6;
+	background-color: #9b53b852;
+}
+
+
+blockquote.prompt-bolt::before {
+	content: "\f0e7";
+	color: #9b59b6;
+	font: var(--fa-font-solid);
+}
+
 
 blockquote.prompt-mug {
 	border-left-color: #777777;

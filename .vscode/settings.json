@@ -1,4 +1,8 @@
 {
+
+  "github.copilot.editor.enableCodeActions": false,
+  "editor.lightbulb.enabled": "off",
+
   // Prettier
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
@@ -28,7 +32,6 @@
     "zsh": { "path": "/bin/zsh", "args": ["-l", "-i"] }
   },
 
-  "editor.lightbulb.enabled": "off",
 
   "editor.codeActionsOnSave": {
 		"source.fixAll.markdownlint": "explicit"
@@ -71,5 +74,15 @@
 	},
 	"cSpell.words": [
 		"noob"
+	],
+	"favorites.resources": [
+		{
+			"filePath": "_includes/shared",
+			"group": "Default"
+		},
+		{
+			"filePath": "assets/img/posts",
+			"group": "Default"
+		}
 	],
 }

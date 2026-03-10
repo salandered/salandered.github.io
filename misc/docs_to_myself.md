@@ -32,6 +32,20 @@ This won't work as expected:
 -->
 ...
 
+
+This won't probably would:
+<!-- 
+<details markdown="1">
+<summary>🔽 Expand to see screenshots 🔽</summary>
+
+### This is now a heading
+- And this is a **bold** list item.
+- Markdown works here!
+
+</details>
+-->
+
+
 ### Prompts
 
 Prompts: **tip, info, warning, and danger**
