@@ -2,7 +2,6 @@
 
 link: https://salandered.github.io/
 
-
 ## License
 
 The theme code is based on [Chirpy](https://chirpy.cotes.page/about/) and licensed under the MIT License: [file](LICENSE)

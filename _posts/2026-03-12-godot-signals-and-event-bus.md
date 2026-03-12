@@ -1,6 +1,6 @@
 ---
-title: "Godot signals and Event Bus"
-description: "🚌 How to use Godot signals using the Event Bus pattern, and common pitfalls to be aware of."
+title: "Godot Signals: Object Scope and Event Bus"
+description: "🚌 Signal scopes in Godot, implementing a global event bus, and the pitfalls that come with it."
 categories: [Coding]
 tags: [godot, godot signals, eda]
 ---
@@ -117,8 +117,6 @@ Instead of belonging to a specific instance, global-scoped signals are declared 
 
 These signals typically represent **many-to-one/many-to-many relationships**, since multiple different publishers can emit the same event.
 
-This setup is closer to typical EDA where components are independent and separated.
-
 ***Button example variation***
 
 Pressing any button triggers a generic click sound. The sound player doesn't care which specific button was pressed (Options, New Game, or Exit) or which menu it belongs to; it might not even be tied to the UI logic at all.
@@ -155,7 +153,7 @@ func open_door():
 
 This can be seen as an implementation of the [event bus pattern](https://www.enterpriseintegrationpatterns.com/patterns/messaging/MessageBus.html)
 
-> Notice that `DoorSFXSystem` still needs the object-scoped signal: in case of subscribing to the global `GlobalSignal.door_opened`, one opened door would trigger opening sound on every existing door in the level
+> Notice that `DoorSFXSystem` still needs the object-scoped signal: in case of subscribing to the global `GlobalSignal.door_opened`, one opened door would trigger a sound on every existing door in the level
 {: .prompt-mug }
 <!-- lint fight -->
 > The same idea is described in the official tutorial [comment](https://github.com/godotengine/godot-docs-user-notes/discussions/5#discussioncomment-8124099) by [**samuelfine**](https://github.com/samuelfine).
@@ -173,7 +171,7 @@ Global-scoped signals come with caveats that require careful handling.
 
 ![alt text](/assets/img/posts/godot_signal_bus/image-4.png)
 
-The biggest trap of global signals is that they are too easy to use. Developer might be tempted not to design the components relationships (e.g, abstraction layers, function interfaces, SOLID patterns) and just throw a global signal at the problem. We can just add four lines of code:
+The biggest trap is that they are too easy to use. Developer might be tempted not to design the components relationships (e.g, abstraction layers, function interfaces, SOLID patterns) and just throw a global signal at the problem. Using only four lines of code:
 
   - GlobalSignals:
     - `signal another_signal(any_data)`
@@ -185,9 +183,6 @@ The biggest trap of global signals is that they are too easy to use. Developer m
 
 In contrast, object-scoped signals still inherently require some structural relationship.
 
-> In EDA, new event type typically requires a lot of effort: you think about event protocols, event routing, event payload, configuring publisher and subscriber, etc.
-{: .prompt-mug }
-
 #### One-to-many pitfall
 
 ![alt text](/assets/img/posts/godot_signal_bus/image-5.png)
@@ -196,7 +191,7 @@ Consider a scenario where enemies stop attacking when the player dies. Emitting 
 
 The problem arises if you ever add split-screen or multiplayer: a single player's death will freeze every enemy on the map.
 
-Of course, adding a second main character involves a massive game redesign anyway, so this specific example is extreme. But the idea is that using the global scope is fine for a singleton publisher, but you must be certain that the publisher is a true singleton by nature, and a second instance won't be required later.
+Of course, adding a second main character involves a massive game redesign anyway, so this was and extreme example. But the idea is that while using the global scope is fine for a singleton publisher, you must be certain that the publisher is a true singleton by nature, and a second instance won't be required later.
 
 #### Broadcasting pitfall
 
@@ -211,9 +206,9 @@ Imagine an analytics system that tracks which menu buttons a player presses most
 
 This is fine, but a tricky problem can emerge later: developers might start relying on this global signal for what should be object-scoped scenarios. Remember the earlier example where an "Options" button opens a submenu? The `OptionSubmenuLoader` connected directly to that specific button. Now, a developer might just use the global `button_pressed` signal instead, filtering the events to open the menu only if `button_id == "OptionsButton"`.
 
-This doesn't scale well. Every button press across the game will trigger the `OptionSubmenuLoader`. This means that the subscriber will be constantly filtering irrelevant data, leading to wasted performance and a convoluted signal topology.
+This doesn't scale well. Every button press across the game will trigger the `OptionSubmenuLoader`: the subscriber will be constantly filtering irrelevant data, leading to wasted performance and a convoluted signal topology.
 
-> Essentially, we gave up on the natural ["Event routing" signal ability]({% post_url 2026-03-06-godot-signals-and-eda %}#signals-imply-event-routing) and force a broadcast model: every subscriber receives every signal and manually filters the information. This is not necessarily a bad design, if you are aware of the pros and cons.
+> Essentially, we give up on the natural ["Event routing" signal ability]({% post_url 2026-03-06-godot-signals-and-eda %}#signals-imply-event-routing) and force a broadcast model: every subscriber receives every signal and manually filters the information. This is not necessarily a bad design, if you are aware of the pros and cons.
 {: .prompt-mug }
 
 ### Comparison to Event-Driven Architecture
@@ -237,9 +232,9 @@ In global-scoped signals there is no analogy for that. It probably hints that th
 
 ### DDD comment
 
-Object-scoped signals - operate inside a single Bounded Context. Because the subscriber has direct access to the publisher, this usually represents communication within an [Aggregate](https://martinfowler.com/bliki/DDD_Aggregate.html).
+Object-scoped 🚪 signals - operate inside a single Bounded Context. Because the subscriber has direct access to the publisher, this usually represents communication within an [Aggregate](https://martinfowler.com/bliki/DDD_Aggregate.html).
 
-Global-scoped signals - used to communicate between different Bounded Contexts. The systems are fully independent and unaware of each other's logic.
+Global-scoped 🌎 signals - used to communicate between different Bounded Contexts. The systems are fully independent and unaware of each other's logic.
 
 ## Connecting signals in UI
 
@@ -283,14 +278,16 @@ You can maintain this decoupling by combining signals with dependency injection:
 
 ### Local Event Bus
 
-Imagine the door has many signals (`door_closed`, `door_locked` etc) and multiple systems depend on them. Then a `DoorSignalContainer` can be created. Dependent systems, like the SFXSystem, would use this injected container to handle their logic. It is similar to the global scope we discussed but this time the bus is local, scoped strictly to a specific item (the door).
+Imagine the door has many signals (`door_closed`, `door_locked` etc) and multiple systems depend on them. Then a `DoorSignalContainer` can be created. Dependent systems, like the SFXSystem, would use this injected container to handle their logic.
+
+It is similar to the global scope we discussed but this time the bus is local, scoped strictly to a specific item (the door).
 
 ### 🤷‍♂️ Why use signals at all
 
 It may seem that the signal approach is not necessary when the two components have direct access to each other (object scope).
-While this is true on a small scale, we still have all the advantages of the decoupled system. I listed main reasons [here]({% post_url 2026-03-06-godot-signals-and-eda %}#why-direct-call-dependency-might-be-undesired).
+While this is true on a small scale, we still have all the advantages of the decoupled system. I discussed it in details [here]({% post_url 2026-03-06-godot-signals-and-eda %}#why-direct-call-dependency-might-be-undesired).
 
-Another argument might be that a game app is a big monolith (at least an indie game without multiplayer features): You don't have network boundaries or independent components running on different machines. Every part can be accessed directly using global tree structure, singletons, Godot's [**Groups**](https://docs.godotengine.org/en/stable/tutorials/scripting/groups.html#groups) or low level API. But the absence of these boundaries only makes deliberate decoupling more important, not less.
+Another argument might be that a game app is a big monolith (at least an indie game without multiplayer features): You don't have network boundaries or independent components running on different machines. Every part can be accessed directly using global tree structure, singletons, Godot's [**Groups**](https://docs.godotengine.org/en/stable/tutorials/scripting/groups.html#groups) or [low level API](https://docs.godotengine.org/en/stable/tutorials/performance/using_servers.html#servers). But the absence of these boundaries only makes deliberate decoupling more important, not less.
 
 ---
 
