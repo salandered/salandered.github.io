@@ -1,6 +1,6 @@
 ---
 title: "Using VSCode with Godot: Pros, Cons and Tips"
-description: I share my experience using both Godot's built-in editor and VSCode. I cover pros, cons, tips, and pitfalls.
+description: "🔷 I share my experience using both Godot's built-in editor and VSCode. I cover pros, cons, tips, and pitfalls."
 categories: [Coding]
 tags: [godot]
 ---
@@ -59,10 +59,6 @@ VSCode (via **godot-tools** extension) also provides:
 
 VSCode also has a huge extensions ecosystem. See [details](#-ide-extensions-and-godot-addons) and
 [recommended list for VSCode](#vscode-extensions-for-working-with-godot).
-
-> Also, in my experience, VSCode is much faster.
-> Godot editor has a noticeable lag even for basic actions like code typing or file view scrolling.
-{: .prompt-mug }
 
 ## Details
 
@@ -175,6 +171,9 @@ The best tip is to always verify the diff changes before committing.
 
 ### 🎨 IDE Extensions and Godot Addons
 
+> Honorable mention: a Godot [addon](https://godotengine.org/asset-library/asset/2206) which makes built-in editor closer to IDE. I haven't tried it.
+{: .prompt-bolt }
+
 The IDE has a big library of actively maintained extensions or plugins. For example:
 
 - You write project docs and want to add a markdown linter or spell checker
@@ -184,9 +183,6 @@ The IDE has a big library of actively maintained extensions or plugins. For exam
 Sometimes you can find alternatives in Godot asset library, but there are usually niche and could be abandoned. [link](https://github.com/turboseb/godot-git-bash-here) [link](https://github.com/brunogbrito/Godot-Hunspell) [link](https://github.com/phnix-dev/markdown-book)
 
 On the other hand, it provides popular GDScript specific tools, that external IDE would not have.  [link](https://godotengine.org/asset-library/asset/4612) [link](https://github.com/Lcbx/GdScript2All)
-
-> Some addons even try to [make IDE](https://godotengine.org/asset-library/asset/2206) out of Godot. I haven't tried them.
-{: .prompt-mug }
 
 Main takeaway is that using IDE adds a lot of possibilities, while all native addons can still be used.
 

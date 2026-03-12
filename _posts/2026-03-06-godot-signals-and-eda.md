@@ -1,8 +1,8 @@
 ---
 title: "Reversing the flow: Godot Signals through an EDA lens"
-description: Understanding the basic usage of Godot's signals from an Event-Driven Architecture perspective.
+description: "🔁 Understanding the usage of Godot's signals from an Event-Driven Architecture perspective."
 categories: [Coding]
-tags: [godot, godot signals, events, eda]
+tags: [godot, godot signals, eda]
 ---
 
 - [📜 Intro](#-intro)

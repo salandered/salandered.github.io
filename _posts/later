@@ -1,0 +1,390 @@
+
+
+#### About payload
+
+You will inevitably use signal payloads in both object and global scopes.
+
+But passing data this way can actually damage the decoupled, EDA-like nature of your architecture.
+
+Let's explore how a signal naturally evolves to include a payload to see why.
+
+##### object-scoped payload
+
+Take Godot's built-in BaseButton as an example. Its toggled(toggled_on: bool) signal only indicates that a change happened, not what the specific new state is. For the actual state, you rely on the boolean payload.
+
+Imagine our door now opens and closes. The SFXSystem needs to play the appropriate sound for each event:
+
+```GDScript
+class_name SFXSystem
+
+var door: Door
+
+func _ready():
+	door.door_opened.connect(_on_door_opened)
+	door.door_closed.connect(_on_door_closed)
+
+func _on_door_opened():
+	# <play creak sound>
+
+func _on_door_closed():
+	# <play boom sound>
+```
+
+```GDScript
+class_name Door
+
+signal door_opened
+signal door_closed
+
+func open_door():
+	door_opened.emit()
+
+func close_door():
+	door_closed.emit()
+```
+
+Now imagine the door can also be locked, broken, and exploded. Clearly, adding a new signal for every state doesn't scale well. Instead, let's mimic what the toggled signal does:
+
+```GDScript
+class_name SFXSystem
+
+var door: Door
+
+func _ready():
+	door.state_changed.connect(_on_door_state_changed)
+
+func _on_door_state_changed(new_state: String):
+	match new_state:
+		"opened":
+			# <play creak sound>
+		"closed":
+			# <play bum sound>
+		# ... <- any other state
+```
+
+```GDScript
+class_name Door
+
+signal state_changed(new_state: String)
+
+func open_door():
+	state_changed.emit("opened")
+
+func close_door():
+	state_changed.emit("closed")
+```
+
+
+<!-- small comment, will be info panel -->
+This code still has structural flaws: Door's code hasn't really changed. We emit the same signal, but from different parts.
+As door states grow, it usually leads to implementing explicit state logic, like a State Machine. Having a dedicated function to handle state changes gives you a single, clean location to emit the signal:
+
+```GDScript
+var state: String
+
+func _change_state(new_state: String):
+	state = new_state
+	state_changed.emit(new_state)
+```
+
+
+
+
+
+
+### Issue with payloads
+
+An important detail about the previous code is that you will only encounter an error if the arguments passed into emit does not match the signature of the callback (i.e types, amount of arguments).
+
+This would break and it breaks only during runtime:
+
+```gdscript
+signal state_changed(new_state: String)
+
+state_changed.emit("opened")
+```
+
+```gdscript
+func _on_door_state_changed(a: int):
+	pass
+```
+
+
+We can see that changing callback interface leads to changing `emit` arguments.
+
+This means that, changing implementation of subscriber leads to changing the publisher (and vice versa)!
+
+We just give up on the core principles signal helped us to achieve: the reverse of dependencies between the two components and their independence.
+
+In particular, all the signal advantages I discussed in my previous post have been nuked
+
+How to solve this?
+
+Well, firstly the problem arose from the fact that a signal is actually a function call. Naturally arguments should match while making it.
+
+I briefly describe payload usage in EDA here. We can adopt this approach, and make our arguments more like a event payload:
+make it more abstract and unified.
+
+One way to implement this:
+
+```
+signal state_changed(payload: Dictionary[String, String])
+```
+
+```gdscript
+func _on_door_state_changed(payload: Dictionary[String, String]):
+	pass
+```
+
+Here payload looks like a general JSON like structure and can be used to transfer any data.
+
+
+> We could also create a new `Payload` which would hide the dictionary structure and provide some additional functionality.
+{: .prompt-info }
+
+
+I think it's the only way to scale big project and actually use all the EDA benefits signals provide.
+
+But as any additional abstraction layer introduced in architecture, it comes with a cost: less readability, more boilerplate code and infrastructural logic. Small solo projects might not need this at all.
+
+
+#### Less readability
+Signal declaration does not provide a clear look at its identity, what change it represents.
+
+Compare:
+```
+signal state_changed(new_state: String)
+```
+```
+signal state_changed(payload: Dictionary[String, String]) # during runtime: {"new_state": "opened"}
+```
+
+Same with callback signature.
+
+#### Infrastructural code
+
+Before emitting the signal, you would need to "pack" the payload:
+
+```
+state_changed.emit({"new_state": "opened"})
+```
+
+On receiving the signal, you unpack
+
+```
+add code here
+```
+
+This means that receiver needs to know about the strings that Dictionary contains.
+
+Which leads to implementing some "schema" logic:
+
+```
+# some separate file with schema consts
+const NEW_STATE_PAYLOAD_SCHEME:= "new_state"
+```
+
+In real game you would probably need to transfer not only String values, and payload will be looking like this:
+
+```
+signal state_changed(payload: Dictionary[String, Variant])
+```
+
+
+But then the Subscriber would also need to validate the value parts of the dict (what type do I expect?).
+
+And so on and so forth.
+
+### Bright side
+
+#### Safety benefits
+
+Advantage is not only about clear "EDA design"
+
+Of course, any function call in GDScript means that you need to pass the right arguments in order to not caught a runtime error.
+
+But in case of signals, as we discussed, components might be independent and know little about each other. In fact, one developer can be working on publisher, while another cover subscriber, while publisher and subscriber cover completely different things (actual game mechanic and steam achievements service; player controller and sfx system)
+
+In such case, the mismatch between emit and callback functions might be a series vulnerability: it is a syntactic mistake.
+
+While having a bug in payload is much less severe: for example, subscriber won't find an expected key in dictionary, it can just fallback to default logic
+
+
+#### Scalability benefits
+
+Imagine you want to add new information to signal payload.
+
+In case of "argument like" payload you would need to update the signal declaration, all emitters and all the callbacks:
+
+```gdscript
+signal state_changed(new_state: String, old_state: String)
+
+<add code>
+state_changed.emit ...
+on_state_changed(..)
+```
+
+In case of `payload: Dictionary[String, String]`, you dont change declaraion, and may only change the emitters.
+
+While new subscriber functionality can be updated later and also gradually.
+
+Also note that we discuss primitive examples, but event may have complex structure with both domain changes and technical data.
+
+```
+signal state_changed(old_state: String, new_state: String, object_id: int, frame: int, log_context: Array[Variant])
+```
+
+Maintaining this declaration is simpler:
+
+```
+signal state_changed(payload: Dictionary[String, Variant])
+```
+
+
+
+### Implementation tips
+
+#### Gradual implementation
+
+You don't need to code all at once. This pattern can be tested between two popular components in ur application to see how it goes.
+
+#### Not too abstract
+
+You also don't need to take the most abstract approach beforehand.
+
+`payload: Dictionary[String, Variant]` is just an example, your system might rely on some specific structure, which all components are familiar with. For example, if you use events for a state machine, structure could be like this:
+
+```
+class SignalPayload:
+  new_state: String,
+  additional_data: Dictionary
+```
+
+And majority of components will be working only with `new_state` attribute, without any validation.
+While `additional_data` makes it easy to experiment with new things and cover some exceptional cases.
+
+
+#### Auto serialization
+
+Some objects in your game may be frequently used with signals.
+
+For example, we have `HitData`:
+```
+class_name HitData
+
+var damage: int
+var direction: int # some enum
+var weapon_id: String
+```
+
+And you see that it is used for different signals fired across different fighting mechanics.
+
+In this case, you might add:
+
+```
+class_name HitData
+...
+func to_dict() -> Dictionary
+<add code>
+
+func from_dict() -> HitData
+<add code. in case of problem return null>
+```
+
+And publishers and subscriber will be using this methods, not thinking about packing/unpacking
+
+> Example here illustrate an approach when passing HitData directly is not desired (you want to pass only copy; you don't allow non primitive types in your payload).
+> Otherwise Sending just {"hit_data": HitData} as a payload is enough.
+
+
+#### It is not new
+
+People who worked with event driven architecture are familiar with all these complexities and won't be surprised that additional effort is needed.
+For example, payload structure is commonly referred as "schema" and some languages and tools have popular libraries which help maintaining it (packing, unpacking, validating, etc). And in distributed systems publisher and subscribe might declare a integration protocol using specifications like [async api](https://www.asyncapi.com/en) (same as open api for http).
+
+This means that you can follow some established practices and not invent everything from scratch.
+
+
+
+### Another problem: signal declaration
+
+An important detail about the previous code is that the parameter declaration in signal state_changed(new_state: String) is entirely optional.
+
+It serves as a hint for Godot to provide some UI facilities, but you can emit anything during runtime
+(given that emit callback singatures match). Code editor also won't show any warnings.
+
+I talked about it here.
+
+For example, this code is valid:
+
+```gdscript
+signal state_changed(new_state: String)
+
+state_changed.emit(1)
+```
+
+```gdscript
+func _on_door_state_changed(a: int):
+	pass
+```
+
+And so is this:
+
+```gdscript
+signal state_changed(new_state: String)
+
+door_opened.emit(1, "a", [1, 2])
+```
+
+```gdscript
+func _on_door_state_changed(a, b, c):
+	pass
+```
+
+Such optional signal declaration leads to certain potential problems:
+
+- It is easy to forget to change it during refactoring.
+- It misleads developers reading the code (especially if it is not Godot, e.g. VSCode or github repo)
+- Changing the declaration might provide a false sense of making a change.
+
+You might consider different strategies.
+
+
+##### Formulate the payload identity
+
+All that we were discussing about implementing abstract generic payload applies here and will solve the problem
+
+
+
+##### Just be vigilant
+
+For example, enforce signal payload declaration in project guidelines, review diffs before commiting, review PRs with your team.
+
+
+##### Ignore the declaration
+
+Ignoring entirely and always using: `signal state_changed`. You project guidelines might declare that signal payload is represented by signal usage (emit, callback interface and not the signal declaration).
+
+Pros
+* no sync issues
+* simplest to maintain
+
+Cons:
+* loosing UI intergration
+* signal loses its indentity. its not longer an event which fully describes what state change it represents
+* hardest to read
+* I havent seen it projects or documentations. Feels not godotic
+
+
+
+
+
+
+
+
+
+## small comment
+Of course signals may have additional data which can be needed by the subscribers as well as metadata which makes the system more transparent and debugging easier.
+Designing what data your events carry is a popular EDA challenge on its own, and mapping this to game development and signal usage in particular would probably reqire writing a couple of books. We won't be attempting doing it here.
+
+##
