@@ -1,4 +1,19 @@
 
+## Post references
+
+[here](2026-03-06-godot-signals-and-eda#signals-are-not-data-but-may-transfer-it)
+[here](2026-03-12-godot-signals-and-event-bus#-door-sfx-example)
+[here](2026-03-12-godot-signals-and-event-bus#)
+[here](2026-03-14-godot-signals-and-payload.md#adding-more-signals)
+
+[text](../_posts/2026-03-06-godot-signals-and-eda.md#how-event-approach-solves-this-via-decoupling)
+[text](../_posts/2026-03-12-godot-signals-and-event-bus.md#local-event-bus)
+
+[here]({% post_url 2026-03-06-godot-signals-and-eda %}#signals-imply-event-routing)
+[here]({% post_url 2026-03-06-godot-signals-and-eda %}#signals-are-not-data-but-may-transfer-it)
+[here]({% post_url 2026-03-12-godot-signals-and-event-bus %}#-door-sfx-example)
+[here]({% post_url 2026-03-14-godot-signals-and-payload %}#adding-more-signals)
+
 ## Local run
 
 exec jekyll serve
@@ -32,7 +47,6 @@ This won't work as expected:
 -->
 ...
 
-
 This won't probably would:
 <!-- 
 <details markdown="1">
@@ -44,7 +58,6 @@ This won't probably would:
 
 </details>
 -->
-
 
 ### Prompts
 

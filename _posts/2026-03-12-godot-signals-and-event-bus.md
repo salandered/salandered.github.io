@@ -163,7 +163,7 @@ Given the number of reactions it got, I think there is demand for such an approa
 ### All the dangers
 
 > I use **global-scoped signals** and **global signals** interchangeably. I also sometimes refer to **object-scoped signals** as **local signals**. These are just terms I came up with, but I think the semantics is intuitive.
-> {: .prompt-info }
+{: .prompt-info }
 
 Global-scoped signals come with caveats that require careful handling.
 
@@ -197,7 +197,7 @@ Of course, adding a second main character involves a massive game redesign anywa
 
 ![alt text](/assets/img/posts/godot_signal_bus/image-6.png)
 
-> On emitting signal, you can pass additional data. These are just arguments of the function call. I call it payload, while it's [not quite the same]({% post_url 2026-03-06-godot-signals-and-eda %}#signals-are-not-data-but-may-transfer-it).
+> On emitting signal, you can pass additional data. I call it payload, while it's [not quite the same]({% post_url 2026-03-06-godot-signals-and-eda %}#signals-are-not-data-but-may-transfer-it).
 {: .prompt-mug }
 
 With global signals, it is common to include a payload since the publisher and subscriber are independent.

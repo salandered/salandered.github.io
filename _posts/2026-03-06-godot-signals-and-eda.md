@@ -1,6 +1,6 @@
 ---
 title: "Reversing the flow: Godot Signals through an EDA lens"
-description: "🔁 Understanding the usage of Godot's signals from an Event-Driven Architecture perspective."
+description: "🌊 Understanding the usage of Godot's signals from an Event-Driven Architecture perspective."
 categories: [Coding]
 tags: [godot, godot signals, eda]
 ---
@@ -22,8 +22,8 @@ tags: [godot, godot signals, eda]
   - [Observer + Event Notification](#observer--event-notification)
 - [👋 Let's wrap](#-lets-wrap)
 
-> - Official docs: [link](https://docs.godotengine.org/en/stable/classes/class_signal.html)
-> - Official tutorial: [link](https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html)
+> Official docs: [link](https://docs.godotengine.org/en/stable/classes/class_signal.html)
+> Official tutorial: [link](https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html)
 {: .prompt-book }
 
 ## 📜 Intro
@@ -35,16 +35,16 @@ I saw that some more experienced Godot creators share the same skepticism, and a
 At the same time, Godot promotes them as one of the key features; interactions with built-in classes imply signal usage and they are firmly integrated into the UI.
 Also a game app is a monolith, which means that if we don't decouple our components, no one else will. And a signal looks like an event that can be sent...
 
-Well, I started using them, combining info from the docs and my Event-Driven Architecture experience. The resemblance to EDA is sometimes metaphorical (we will see it), but Godot signal is commonly referred to as an event, and this is an interesting perspective.
+Well, I started using them, combining practices from the docs and my Event-Driven Architecture experience. The resemblance to EDA is sometimes metaphorical (we will see it), but Godot signal is commonly referred to as an event, and this is an interesting perspective.
 
-Note that I only cover most basic signal usage (i.e the one described in Godot docs).
+Note that I only cover the most basic signal usage (i.e the one described in Godot docs).
 
 > I usually refer to Event-Driven Architecture as **EDA**.
 {: .prompt-info }
 
 ### Who is this article for?
 
-I wrote the key parts with such an audience in mind: "Understands software patterns, in particular EDA; noob at Godot and don't use Godot signals.".
+I wrote the key parts with such an audience in mind: "Understands software patterns, in particular EDA; noob at Godot".
 But I cover other things as well:
 
 - explaining Event-Driven Architecture itself
@@ -54,7 +54,7 @@ But I cover other things as well:
 
 So overall the entry barrier is low - something here should be useful regardless of skill level.
 
-Also this blog post can be seen as a theoretical preparation to another post where I discuss more practical examples.
+Also this article can be seen as a theoretical preparation to a series of posts where I discuss practical examples.
 
 > **I am not a Godot expert**. While I try to reinforce the main points, mistakes and misconceptions are possible.
 {: .prompt-info }
@@ -67,7 +67,7 @@ We will start with a basic example.
 
 ### 🎵 Door SFX example
 
-> I use GDScript in code snippets. It is illustrative and concise. It shouldn't be a problem if you are not familiar with it, but
+> GDScript is used in code snippets. It is illustrative and concise. It shouldn't be a problem if you are not familiar with it, but
 > note that C# may [look differently](https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_differences.html#doc-c-sharp-differences),
 > in particular, signals are implemented via delegates.
 {: .prompt-info }
@@ -83,7 +83,7 @@ We will start with a basic example.
 
 #### Why direct call dependency might be undesired
 
-We can see that the door depends on its sfx system. Why this can be an issue?
+We can see that the door depends on its sfx system. Why can this be an issue?
 
 The first thing is that any change to `DoorSFXSystem` implementation would require the changes on the door side.
 The same problem arises if we want to completely replace `DoorSFXSystem` class with, let's say, one generic `PropSFXSystem` which covers all interactive items in game.
@@ -101,7 +101,7 @@ Besides that, we need to deal with initialization, validation, and runtime safet
 Even with all this in place, new challenges arise:
 
 - What if we want a silent door (no sfx system at all)?
-- What if on door opening we also want another VFX system to create dust effect, achievement system to count how many doors a player has opened, and many others?
+- What if on door opening we also want another VFX system to create a dust effect, achievement system to count how many doors a player has opened, and many others?
 - What if we want to detach and add sfx system dynamically during the `Door`'s object life cycle?
 
 #### How event approach solves this via decoupling
@@ -110,11 +110,11 @@ Even with all this in place, new challenges arise:
 > different related concepts will be gradually revealed throughout the article.
 {: .prompt-tip }
 
-One way to address these design issues is to use Event-Driven Architecture (EDA) and [**Event**](https://en.wikipedia.org/wiki/Event_(computing)) concept in particular (also known as **Message** or **Notification**, depending on the context):
+One way to address these design issues is to use Event-Driven Architecture (EDA) and the [**Event**](https://en.wikipedia.org/wiki/Event_(computing)) concept in particular (also known as **Message** or **Notification**, depending on the context):
 > In computing, an event is a detectable occurrence or change in state that the system is designed to monitor,
 > such as user input, hardware interrupt, system notification, or change in data or conditions. When associated with an event handler, an event triggers a response.
 
-This sounds scary, let's keep only key parts:
+This sounds scary, let's keep only the key parts:
 > An event is a *detectable occurrence* or *change in state*. When *associated* with an *event handler*, an event *triggers* a response.
 
 How it applies to our door?
@@ -126,19 +126,19 @@ How it applies to our door?
 
 All together:
 
-- Door has an event and sends it on door being opened.
+- Door has an event and sends it when the door is opened.
 - Sfx system subscribes to this event during the initialization.
 - During runtime sfx system would play the sound on receiving such an event.
 
 This means that the door not only does not have a dependency on sfx system, but ***it has no idea such system exists***.
 
-How to do this in our code? We don't want to implement some specific EDA pattern in Godot, this would require a couple of books (of a questionable value).
+How to do this in our code? We don't want to implement some specific EDA pattern in Godot, this would require a couple of books (of questionable value).
 Luckily Godot has us covered.
 
 #### Decoupling using Godot's signals
 
 How official docs describe them:
-> Signals are a delegation mechanism built into Godot that allows one game object to react to a change in another *without them referencing one another*.
+> Signals are a delegation mechanism built into Godot that allows one game object to react to a change in another ***without them referencing one another***.
 
 This is exactly what we need!
 
@@ -150,7 +150,7 @@ We did exactly the same decoupling that was described via events.
 
 📍 Let's pinpoint the key difference between the direct call and the signal:
 the dependency between `Door` and `SFXSystem` classes ***has been reversed***: sfx system now depends on the door.
-We will be referring to this fact many times.
+I will be referring to this fact many times.
 
 Also note that I renamed `play_sound` function to `_on_door_opened`. This is optional and does not affect the code flow, but serves two purposes:
 
@@ -167,7 +167,8 @@ Also note that I renamed `play_sound` function to `_on_door_opened`. This is opt
 {: .prompt-mug }
 <!-- lint fight -->
 > An attentive reader might notice, that logic on sfx system side still needs an access to the door.
-> In my post (link to come) I describe signal usage with no direct dependencies at all. But for now we still have several advantages:
+> [In this post]({% post_url 2026-03-12-godot-signals-and-event-bus %})
+> I describe signal usage with no direct dependencies at all. But for now we still have several advantages:
 >
 > - Only validation on initialization is needed. During runtime dependent system shouldn't check its door.
 > - Dependent system maintains only door dependency. While on the door side we were risking to maintain dozens of them (sfx, vfx, etc).
@@ -184,20 +185,20 @@ Also note that I renamed `play_sound` function to `_on_door_opened`. This is opt
 We saw that the signal represents a state change ("door has been opened"), how it solved the typical problem which requires events, and it solved it in an "EDA fashion":
 Sfx system subscribed to door's signal; door sent this signal; sfx system logic was triggered by it.
 
-We can also see that official tutorial starts with using such words:
+Besides that, the official tutorial starts with using such words:
 > In this lesson, we will look at **signals**. They are **messages** that nodes emit when something specific happens to them, like a button being pressed. Other nodes can connect to that signal and call a function when the **event** occurs.
 
-Let's also explore built-in signals (after all, door example was made up). They represent a fact that happened to them, the notable change: `BaseButton` has `pressed` signal; `Node` has `child_entered_tree`; `Node3D` has `visibility_changed()`; etc.
+Let's also explore built-in signals (after all, the door example was made up). They represent a fact that happened to them, the notable change: `BaseButton` has `pressed` signal; `Node` has `child_entered_tree`; `Node3D` has `visibility_changed()`; etc.
 
 If we use the word "event" broadly, then a signal can clearly be described as such.
 
 ### Let's try to be specific, though
 
-If we use the word "event" like a term...
+If we use the word "event" as a term...
 
 Firstly, there is no strict definition: it depends on the area, use cases, implementations. I tried to discuss the EDA essence of it, and signals fit this.
 That being said, there are common associations with events usage, especially with EDA, and they do not fit our signals.
-Also we will see that technically signal and a usual event have very little in common.
+Also we will see that technically a signal and a usual event have very little in common.
 
 > "Event" term is being used in different areas, like [hardware interruptions](https://wiki.osdev.org/Interrupt_Service_Routines) or
 > [OS loops](https://learn.microsoft.com/en-us/windows/win32/winmsg/about-messages-and-message-queues).
@@ -214,27 +215,26 @@ Some preparations before delving into details.
 
 #### Event-related terms we will borrow
 
-Let's start with using EDA "lenses" and borrow some terms (we'll see later that such things should be done cautiously).
+Let's start by using EDA "lenses" and borrow some terms (we'll see later that such things should be done cautiously).
 
-It is common to call a system that emits the event a **Publisher** and system that listens to such events a **Subscriber**.
+It is common to call a system that emits the event a **Publisher** and a system that listens to such events a **Subscriber**.
 
 In our door example, `Door` is a **publisher** and `SFXSystem` is a **subscriber**.
 
 #### New reference example
 
-Relying only on the door example flattens the perspective, and I feel like an imposter.
 Let's retell the example from the [official tutorial](https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html#custom-signals).
 
-Player character has a health attribute, and on receiving the damage it emits a signal about health being changed.
+Player character has a health attribute, and on receiving damage it emits a signal indicating a health change.
 
 ```gdscript
 class_name Player
 
-signal health_changed(new_amount)
+signal health_changed(new_amount: float)
 
-var health = 10
+var health: float = 10
 
-func take_damage(amount):
+func take_damage(amount: float):
   health -= amount
   health_changed.emit(health)
 ```
@@ -289,8 +289,7 @@ Signals are synchronous and act like a function call.
 It's a common misconception to assume otherwise, and I think there are two reasons for that.
 
 First one we mentioned: EDA is associated with async interactions, and just by using the word "event" it becomes easier to forget that Godot's application
-[is a monolith](https://docs.godotengine.org/en/stable/_images/godot-architecture-diagram.webp) and our components are not independent processes or threads
-(the word "signal" doesn't really help either in my opinion).
+[is a monolith](https://docs.godotengine.org/en/stable/_images/godot-architecture-diagram.webp) and our components are not independent processes or threads.
 
 Secondly, documentation does not emphasize it (I presume this is common knowledge that client code runs using one thread?).
 A funny proof is that top links that pop up in the search look like these:
@@ -300,7 +299,7 @@ A funny proof is that top links that pop up in the search look like these:
 
 So emitting a signal is a **synchronous operation** by default.
 
-What that means for us?
+What does that mean for us?
 
 #### Publisher halts
 
@@ -364,15 +363,13 @@ There is an old [GDQuest article](https://www.gdquest.com/tutorial/godot/best-pr
 
 #### Can we make it asynchronous?
 
-We can easily solve "publisher halts" problem.
+We can solve the "publisher halts" problem via [call_deferred](https://docs.godotengine.org/en/stable/classes/class_callable.html#class-callable-method-call-deferred) feature.
+It "schedules" any function call until the end of the current frame. We can use this while emitting the event.
 
-Godot has a [call_deferred](https://docs.godotengine.org/en/stable/classes/class_callable.html#class-callable-method-call-deferred) feature.
-It "schedules" any function call until the end of the current frame. We can use this on the publisher side.
-
-On the subscriber side a similar [API flag](https://docs.godotengine.org/en/stable/classes/class_object.html#enum-object-connectflags) is available.
+On the subscriber side, a similar [API flag](https://docs.godotengine.org/en/stable/classes/class_object.html#enum-object-connectflags) is available.
 I haven't tested it but assume it will do the same but is "baked" into signal API to make it more handy.
 
-> Note, that code will still be computed synchronously. But publisher can be described as it "fires and forgets".
+> Note that code will still be computed synchronously. But publisher can be described as it "fires and forgets".
 {: .prompt-warning }
 
 To make this truly asynchronous, we can use the [threading API](https://docs.godotengine.org/en/stable/tutorials/performance/using_multiple_threads.html).
@@ -381,10 +378,10 @@ Either way, async signals/events in Godot are beyond the scope of this article.
 
 #### Publisher-Subscriber pitfall
 
-We talked how words bring undesired associations, and I want to mention that "Publisher-Subscriber" may be described as a pattern on its own: [link](https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber), [link](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern). Definitions vary, but, as we might expect by now, async communication is emphasized.
+I want to mention that "Publisher-Subscriber" may be described as a pattern on its own: [link](https://learn.microsoft.com/en-us/azure/architecture/patterns/publisher-subscriber), [link](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern). Definitions vary, but, as we might expect by now, async communication is emphasized.
 
 I still decided to borrow these words (Publisher/Subscriber), but assume that you started using them in your documentation or code:
-a new developer who is no familiar with project can be misled.
+a new developer who is not familiar with project can be misled.
 
 > About alternatives:
 >
@@ -395,12 +392,12 @@ a new developer who is no familiar with project can be misled.
 
 ### Other differences: event routing, event payload
 
-Other differences are natural consequences of what we've discussed and may seem like an unnecessary nitpicking.
+Other differences are natural consequences of what we've discussed and may seem like unnecessary nitpicking.
 I still need to discuss them in order to apply later in practical example.
 
 #### Signals imply Event Routing
 
-In EDA event is a container which holds information, and all events are treated the same (i.e being passed between functions, stored in database, sent over the network).
+In EDA, an event is a container which holds information, and all events are treated the same (i.e being passed between functions, stored in a database, sent over the network).
 Typically a subscriber is exposed to any event in the system. Publishers "broadcast" their events and subscribers pick only those that matter for them.
 
 How to distinguish events? Event type attribute is commonly used:
@@ -428,10 +425,10 @@ In fact, just the opposite: we cannot "broadcast" a signal to all the subscriber
 
 In a sense, code line `door_opened.emit()` is a router itself.
 
-But where that "event type" information located? It is *just a name* that we give our signal variable *by convention*.
+But where is that "event type" information located? It is *just a name* that we give our signal variable *by convention*.
 It is not really used anywhere (unlike the event's attribute).
 
->Speaking of event that I showed, `var event_type` attribute is convenient because an event can be easily stored in database (represented as a row of table)
+>Speaking of the event that I showed, `var event_type` attribute is convenient because an event can be easily stored in database (represented as a row of table)
 > or be sent over the network (serialized to JSON or similar structure).
 > If events are used inside one application, we can "encode" event type into class:
 >
@@ -453,9 +450,7 @@ It is not really used anywhere (unlike the event's attribute).
 
 #### Signals are not data but may transfer it
 
-![alt text](/assets/img/posts/godot_signals/mr_x_opens_the_door.png)
-
-As we saw, an event carries some information (like `event_type`), as this data *is* the event.
+We saw that an event carries some information (like `event_type`), as this data *is* the event.
 Such data is commonly called a [**payload**](https://en.wikipedia.org/wiki/Payload_(computing)):
 > payload is the part of transmitted data that is the actual intended message
 
@@ -467,28 +462,19 @@ var payload: Dictionary # example: {"event_type": "HealthChanged", "new_amount":
 ```
 
 In case of signals, having a signal defined *might be enough* (`door_opened`).
-But additional info may be still necessary (like in health example). Let's upgrade our door:
+But additional info may be still necessary, like in the [health example](#new-reference-example):
 
 ```gdscript
-signal door_opened(initiator: String) 
+signal health_changed(new_amount: float)
 
-door_opened.emit("Mr. X")
+health_changed.emit(health)
 ```
 
-Subscriber would need to define its callback accordingly:
-
-```gdscript
-func _on_door_opened(initiator: String):
-	# ...
-```
-
-Here the parameter of the `emit` is a way to pass it as an argument to the function `_on_door_opened`.
-
-An important thing is that declaration of payload at `signal door_opened(initiator: String)` is optional:
+An important thing is that declaration of the signal payload is optional:
 it is supported by some Godot UI features, but *does not affect the runtime behavior*.
-What matters is a match between `emit` arguments and a callback (`_on_door_opened`) interface. Just like with a direct function call.
+What matters is a match between `emit` arguments and a callback (e.g. `_on_player_health_changed`) interface. Just like with a direct function call.
 
-It means that technically `initiator: String` is not a part of signal's object. This is a key difference with an event.
+It means that technically `new_amount: float` is not a part of the signal's object. This is a key difference with an event.
 From the design perspective, it still can be called and treated as a payload.
 
 Also I like how [official tutorial](https://docs.godotengine.org/en/stable/getting_started/step_by_step/signals.html#custom-signals) playfully remarks:
@@ -496,12 +482,10 @@ Also I like how [official tutorial](https://docs.godotengine.org/en/stable/getti
 {: .normal-quote }
 <!-- lint fight -->
 > Not only the cosmetic declaration, but the way callback interface is dependent on `emit` implies many potential problems, damaging our EDA decoupling.
-> I explore it in another post (link to come).
-{: .prompt-warning }
+> I explore it [here]({% post_url 2026-03-14-godot-signals-and-payload %}).
+{: .prompt-bolt }
 
 ### Summary of Differences
-
-To conclude, let's list what we've discussed.
 
 ***Event***
 
@@ -531,8 +515,6 @@ To conclude, let's list what we've discussed.
 
 - Decouple the logic of publisher and subscriber
 - Transfer the data between publisher and subscriber
-
-All in all, we might use EDA "lenses" while looking at signals and their usage, but should be aware of the key differences.
 
 ## 🏛️ What software pattern we actually use
 
@@ -625,7 +607,7 @@ I will be referencing this pattern, but it's also not ideal:
 (to be fair, GUI events are mentioned in the talk, as well as "notify" can be used in synchronous sense, we just saw it in **Observer** pattern).
 
 Also note that, of course, you can build any pattern that Martin Fowler described.
-But basic signal usages (official tutorial, our examples) are synchronous implementation of the **Event Notification**.
+But basic signal usages (official tutorial, our examples) are a synchronous implementation of the **Event Notification**.
 
 ### Observer + Event Notification
 
@@ -637,15 +619,15 @@ To sum up:
 ## 👋 Let's wrap
 
 Signals can be applied in an EDA fashion, and a signal can be treated as an event,
-even though sometimes the differences are massive - all depends on the perspective:
+even though sometimes the differences are massive - it all depends on the perspective:
 overall design, technical implementation, code level, data transfer ability, etc.
 
 There is no one term that will capture all the intricacies that we deal with, but it's okay:
-both similarities and discrepancies with established patterns should help us working with signals and better see how it fits into the "global world".
+both similarities and discrepancies with established patterns should help us work with signals and better see how it fits into the "global world".
 
 It might also help to deal with documentation imperfections and better evaluate information from the web.
 
-In order not to close on such abstract notes, let's apply the latter right now.
+In order not to end on such abstract notes, let's apply the latter right now.
 
 Take a look at [this clip](https://youtu.be/MWHFV_BPqkA?si=_SInfWhNvBcTHf4R&t=384). Possible critiques:
 
@@ -657,12 +639,12 @@ Another example is this [video](https://youtu.be/b3uFSh3GASs?si=SAyHDv9h_JcHV1Qb
 
 I would now argue that:
 
-- because of the *difference* between the signal and event, 50 signals should not be hard to debug.
-- because of the *similarity* between the signal and event, they should help us to scale our system.
+- because of the *difference* between the signal and the event, 50 signals should not be hard to debug.
+- because of the *similarity* between the signal and the event, they should help us to scale our system.
 
-Also signals are actually a good candidate for "bridges between character and the rest of the game world",
-as EDA events are commonly used to connect independent components (to cross between bounded contexts, you might say). But this would be covered in my next post.
+Also signals are actually a good candidate for "bridges between the character and the rest of the game world",
+as EDA events are commonly used to connect independent components (to cross between bounded contexts). I cover it in the other [post]({% post_url 2026-03-12-godot-signals-and-event-bus %}).
 
-> I am saying this respectfully. The first author created an open source [game template](https://github.com/catprisbrey/Cats-Godot4-Modular-Souls-like-Template)
-> with custom CC0 assets, including SFX and third person animations (not mixamo!), which is truly unique. Speaking about second video mentioned, I learned more from [this channel](https://www.youtube.com/@PointDown) than anywhere else about game mechanics. This author also has [open source repositories](https://github.com/Gab-ani).
+> I say this with respect. The first author created an open source [game template](https://github.com/catprisbrey/Cats-Godot4-Modular-Souls-like-Template)
+> with custom CC0 assets, including SFX and third person animations (not mixamo!), which is truly unique. The second author maintains a [channel](https://www.youtube.com/@PointDown) from which I learned more about game mechanics than from anywhere else. It is also accompanied by [open source repositories](https://github.com/Gab-ani).
 {: .prompt-mug }
